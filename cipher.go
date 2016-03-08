@@ -51,7 +51,7 @@ func (c *Cipher) Decrypt(dst, src []byte) {
 	copy(dst, uint32ToBytes(v))
 }
 
-const Delta = 0x9e3779b9
+const delta = 0x9e3779b9
 
 // BlockEncrypt encrypts the []uint32 represtentation of a block,
 // in-place.
@@ -64,7 +64,7 @@ func (c *Cipher) BlockEncrypt(v []uint32) {
 	var sum uint32
 	for q > 0 {
 		q--
-		sum += Delta
+		sum += delta
 		e := (sum >> 2) & 3
 		var p int
 		for p = 0; p < n-1; p++ {
@@ -86,7 +86,7 @@ func (c *Cipher) BlockDecrypt(v []uint32) {
 	z := v[n-1]
 	q := 6 + 52/n
 
-	sum := uint32(q * Delta)
+	sum := uint32(q * delta)
 	for sum != 0 {
 		e := (sum >> 2) & 3
 		var p int
@@ -98,6 +98,6 @@ func (c *Cipher) BlockDecrypt(v []uint32) {
 		z = v[n-1]
 		v[0] -= ((z>>5 ^ y<<2) + (y>>3 ^ z<<4)) ^ ((sum ^ y) + (c.k[uint32(p)&3^e] ^ z))
 		y = v[0]
-		sum -= Delta
+		sum -= delta
 	}
 }
