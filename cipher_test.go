@@ -8,7 +8,7 @@ import (
 func TestEncrypt(t *testing.T) {
 	key := []byte("0123456789abcdef")
 	cipher, err := NewCipher(key)
-	t.Log("cipher: %+v", cipher)
+	t.Logf("cipher: %+v", cipher)
 	if err != nil {
 		t.Fatal(err)
 	}
