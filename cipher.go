@@ -1,29 +1,33 @@
-// This package implements XXTEA encryption as defined in Needham and Wheeler's
+// Package xxtea implements XXTEA encryption as defined in Needham and Wheeler's
 // 1998 technical report, "Correction to XTEA."
 package xxtea
 
 // For details, see http://www.movable-type.co.uk/scripts/xxtea.pdf
 
-import "strconv"
+import (
+	"crypto/cipher"
+	"strconv"
+)
 
 // The XXTEA block size in bytes.
 const BlockSize = 8
 
-// A Cipher is an instance of an XXTEA cipher using a particular key.
-type Cipher struct {
+// An xxteaCipher is an instance of an XXTEA cipher using a particular key.
+type xxteaCipher struct {
 	k [4]uint32
 }
 
+// KeySizeError may be returned by NewCipher.
 type KeySizeError int
 
 func (k KeySizeError) Error() string {
 	return "crypto/xtea: invalid key size " + strconv.Itoa(int(k))
 }
 
-// NewCipher creates and returns a new Cipher. The key argument should
-// be the XXTEA key. XXTEA only supports 128 bit (16 byte) keys which
-// are converted internally into 4 little-endian uint32 values.
-func NewCipher(key []byte) (*Cipher, error) {
+// NewCipher creates and returns a new cipher.Block. The key argument
+// should be the XXTEA key. XXTEA only supports 128 bit (16 byte) keys
+// which are converted internally into 4 little-endian uint32 values.
+func NewCipher(key []byte) (cipher.Block, error) {
 	k := len(key)
 	switch k {
 	default:
@@ -32,30 +36,30 @@ func NewCipher(key []byte) (*Cipher, error) {
 		break
 	}
 	u := bytesToUint32(key)
-	c := new(Cipher)
+	c := new(xxteaCipher)
 	copy(c.k[:], u)
 	return c, nil
 }
 
-func (c *Cipher) BlockSize() int { return BlockSize }
+func (c *xxteaCipher) BlockSize() int { return BlockSize }
 
-func (c *Cipher) Encrypt(dst, src []byte) {
+func (c *xxteaCipher) Encrypt(dst, src []byte) {
 	v := bytesToUint32(src)
-	c.BlockEncrypt(v)
+	c.blockEncrypt(v)
 	copy(dst, uint32ToBytes(v))
 }
 
-func (c *Cipher) Decrypt(dst, src []byte) {
+func (c *xxteaCipher) Decrypt(dst, src []byte) {
 	v := bytesToUint32(src)
-	c.BlockDecrypt(v)
+	c.blockDecrypt(v)
 	copy(dst, uint32ToBytes(v))
 }
 
 const delta = 0x9e3779b9
 
-// BlockEncrypt encrypts the []uint32 represtentation of a block,
+// blockEncrypt encrypts the []uint32 represtentation of a block,
 // in-place.
-func (c *Cipher) BlockEncrypt(v []uint32) {
+func (c *xxteaCipher) blockEncrypt(v []uint32) {
 	n := len(v)
 	y := v[0]
 	z := v[n-1]
@@ -78,9 +82,9 @@ func (c *Cipher) BlockEncrypt(v []uint32) {
 	}
 }
 
-// BlockDecrypt decrypts the []uint32 represtentation of a block,
+// blockDecrypt decrypts the []uint32 represtentation of a block,
 // in-place.
-func (c *Cipher) BlockDecrypt(v []uint32) {
+func (c *xxteaCipher) blockDecrypt(v []uint32) {
 	n := len(v)
 	y := v[0]
 	z := v[n-1]
