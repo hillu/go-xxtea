@@ -16,7 +16,7 @@ func TestTransform(t *testing.T) {
 	if g := bytesToUint32(b[:]); len(g) != len(u) {
 		t.Errorf("convertion []byte -> []uint failed:: %+v", g)
 	} else {
-		for i, _ := range(g) {
+		for i, _ := range g {
 			if g[i] != u[i] {
 				t.Errorf("convertion []byte -> []uint failed:: %+v", g)
 				break

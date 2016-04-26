@@ -1,8 +1,8 @@
 package xxtea
 
 import (
-	"testing"
 	"encoding/hex"
+	"testing"
 )
 
 func TestEncrypt(t *testing.T) {
